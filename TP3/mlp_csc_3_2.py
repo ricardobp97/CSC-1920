@@ -77,15 +77,11 @@ class MultilayerPerceptron(Model):
     '''
     def __init__(self, output_neurons=10, name='multilayerPerceptron', **kwargs):
         super(MultilayerPerceptron, self).__init__(name=name, **kwargs)
+        self.my_layers = []
 
-        i = 1
         for n in layers_neurons:
-            layer = 'perceptron_layer_' + str(i)
-            self.layer = PerceptronLayer(n)
-            i += 1
-
-        layer = 'perceptron_layer_' + str(i)
-        self.layer = PerceptronLayer(output_neurons)
+            self.my_layers.append(PerceptronLayer(n))
+        self.my_layers.append(PerceptronLayer(output_neurons))
     
     '''
     Layers are recursively composable, i.e., 
@@ -93,14 +89,12 @@ class MultilayerPerceptron(Model):
     Remember that the build of each layer is called automatically (thus creating the weights).
     '''
     def feed_model(self, input_data):
-        i = 1
+        i = 0
         for n in layers_neurons:
-            layer = 'perceptron_layer_' + str(i)
-            x = self.layer(input_data)
+            x = self.my_layers[i](input_data)
             x = tf.nn.relu(x)
             i += 1
-        layer = 'perceptron_layer_' + str(i)
-        logits = self.layer(x)
+        logits = self.my_layers[i](x)
         return self.softmax(logits) #equivalent of tf.nn.softmax(logits)
     
     """
@@ -283,7 +277,7 @@ def high_level_fit_and_predict():
 Run
 '''
 #hyperparameters
-layers_neurons = [16,32] # Two Layers with 16 neurons and 32 neurons
+layers_neurons = [16,32,16,32]
 epochs = 5
 batch_size = 32
 learning_rate = 1e-3
